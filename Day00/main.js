@@ -20,13 +20,12 @@ function partTwo(input){
 
 function solveFile(filePath){
   var input = fs.readFileSync(filePath).toString().trim().split('\n');
-  console.log(`\nFinding solution for ${filePath}`)
+  console.log(`\nFile: ${filePath}`)
   
   let start = performance.now();
   const result1 = partOne(input);
   const mid = performance.now();
   console.log(`Result partOne: ${result1} in ${(mid - start).toPrecision(6)}ms`)
-
 
   start = performance.now();
   const result2 = partTwo(input);
