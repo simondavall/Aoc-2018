@@ -1,6 +1,6 @@
-const { Stack } = require("../Stack.js");
 const fs = require("fs");
 const { performance } = require("perf_hooks");
+const { Stack } = require("../Utils/Stack.js");
 
 let partOneResult = 0;
 

@@ -2,7 +2,7 @@ const fs = require("fs");
 const os = require("os");
 const assert = require("assert");
 const { performance } = require("perf_hooks");
-const { Queue } = require("../Queue.js");
+const { Queue } = require("../Utils/Queue.js");
 
 const directions = [{dx:0,dy:1},{dx:1,dy:0},{dx:0,dy:-1},{dx:-1,dy:0}];
 
@@ -81,10 +81,6 @@ function distanceWithin(x, y, points, max){
 
 function partTwo(points){
 
-  // find middle (average) point
-  // check it has value less than 32/10000.
-  // add point to queue.
-  // continue until queue empty
   const maxDist = 10000;
 
   let totalX = 0;
@@ -96,11 +92,6 @@ function partTwo(points){
 
   avgX = Math.round(totalX / points.length);
   avgY = Math.round(totalY / points.length);
-
-  if (distanceWithin(avgX, avgY, points, maxDist)){
-    console.log(`Distance in range`);
-  } 
-
   const avgPt = {x:avgX,y:avgY}; 
 
   const validPoints = new Set();
@@ -111,19 +102,15 @@ function partTwo(points){
 
   while (!q.isEmpty()){
     const item = q.dequeue();
-    //console.log(`Dequeued item: [${item.x}, ${item.y}]`);
     
     if (distanceWithin(item.x, item.y, points, maxDist)){
       validPoints.add({x:item.x,y:item.y});
       for (const {dx, dy} of directions){
         const nx = item.x + dx;
         const ny = item.y + dy;
-        const nextPt = {x:nx,y:ny};
-        //console.log(`nextPt: ${nextPt.x},${nextPt.y}`);
-        //console.log(`Seen array: ${Array.from(seen)}`); 
         if (!seen.has(`[${nx},${ny}]`)){
           seen.add(`[${nx},${ny}]`);
-          q.enqueue(nextPt);
+          q.enqueue({x:nx,y:ny});
         }
       }
     }
