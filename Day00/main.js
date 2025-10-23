@@ -30,7 +30,6 @@ function solveFile(filePath){
   start = performance.now();
   const result2 = partTwo(input);
   const end = performance.now();
-  const arr = Array.from(result2).sort();
 
   console.log(`Result partTwo: ${result2} in ${(end - start).toPrecision(6)}ms`)
 }
