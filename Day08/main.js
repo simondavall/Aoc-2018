@@ -72,7 +72,7 @@ function calcTreeValues(node) {
 }
 
 function partOne(input) {
-  const data = createNodeTree(input);
+  createNodeTree(input);
 
   return treeTotal(head);
 }
