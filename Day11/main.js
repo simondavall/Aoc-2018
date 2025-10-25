@@ -45,23 +45,43 @@ function partTwo(input) {
   let maxPowerY = 0;
   let maxPowerSize = 0;
 
-  for (let size = 1; size < 300; size++) {
-    for (let y = 0; y <= gridSize - size; y++) {
-      const seen = new Object();
-      for (let x = 0; x < gridSize - size; x++) {
-        let tally = 0;
-        for (let i = x; i < x + size; i++) {
-          let col = 0;
-          if (seen[i] === undefined) {
-            for (let j = y; j < y + size; j++) {
-              col += grid[j][i];
-            }
-            seen[i] = col;
-          } else {
-            col = seen[i];
+  let size = 3;
+  const squares = new Object();
+
+  for (let y = 0; y < gridSize - size; y++) {
+    const seen = new Object();
+    for (let x = 0; x < gridSize - size; x++) {
+      let tally = 0;
+      for (let i = x; i < x + size; i++) {
+        let col = 0;
+        if (seen[i] === undefined) {
+          for (let j = y; j < y + size; j++) {
+            col += grid[j][i];
           }
-          tally += col;
+          seen[i] = col;
+        } else {
+          col = seen[i];
         }
+        tally += col;
+      }
+      squares[`${x}-${y}`] = tally;
+    }
+  }
+
+  for (size += 1; size < gridSize; size++) {
+    for (let y = 0; y < gridSize - size; y++) {
+      for (let x = 0; x < gridSize - size; x++) {
+        let tally = squares[`${x}-${y}`];
+        let j = size - 1;
+        const dx = x + j;
+        const dy = y + j;
+        tally += grid[dy][dx];
+        while (j > 0) {
+          tally += grid[dy][dx - j];
+          tally += grid[dy - j][dx];
+          j--;
+        }
+        squares[`${x}-${y}`] = tally;
         if (tally > maxPower) {
           maxPower = tally;
           maxPowerX = x + 1;
@@ -90,13 +110,12 @@ function buildFuelCellGrid(serialNumber) {
 
 function calcCellPowerLevel(x, y, serialNumber) {
   const rackId = x + 10;
-  let pl1 = rackId * y;
-  pl2 = pl1 + serialNumber;
-  pl3 = pl2 * rackId;
-  pl4 = Math.trunc(pl3 / 100);
-  pl5 = pl4 % 10;
-  //console.log(`Text: ${pl5}`);
-  return pl5 - 5;
+  let powerLevel = rackId * y;
+  powerLevel += serialNumber;
+  powerLevel *= rackId;
+  powerLevel = Math.trunc(powerLevel / 100);
+  powerLevel %= 10;
+  return powerLevel - 5;
 }
 
 function solveFile(filePath) {
