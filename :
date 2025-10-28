@@ -81,6 +81,8 @@ function combat(unit, map, superElf) {
 function doBattle(superElf) {
   let rounds = 0;
   deadUnits = new Set();
+  let addedPower = 0;
+
   while (true) {
     units.sort((a, b) => byReadingOrder(a, b));
     let battleMap = drawBattleMap();
@@ -101,64 +103,63 @@ function doBattle(superElf) {
         return { rounds: rounds, hitPoints: hitPoints };
       }
 
-      battleMap = drawBattleMap();
       moveUnit(unit, battleMap);
       const elfDies = combat(unit, battleMap, superElf);
-      if (elfDies) {
-        return null;
+      if (elfDies){
+        // restart with increased power
+        rounds = -1;
+        addedPower++;
+        deadUnits = new Set();
       }
     }
-
     rounds++;
   }
 }
 
 function partOne(input) {
   dirValues = Object.values(directions);
+  units = [];
   const superElves = false;
-
   setupMap(input);
-  setupUnits(0);
+  setupUnits();
 
-  const result = doBattle(superElves);
+  const r = doBattle(superElves);
 
-  return result.rounds * result.hitPoints;
+  console.log(
+    `Summary ${units[0].type} wins: rounds:${r.rounds}, hitPoints:${r.hitPoints}`,
+  );
+
+  return r.rounds * r.hitPoints;
 }
 
 function partTwo(input) {
+  dirValues = Object.values(directions);
+  units = [];
   const superElves = true;
+  setupMap(input);
+  setupUnits();
 
-  let result = null;
-  let addedPower = 0;
+  const r = doBattle(superElves);
+  console.log(
+    `Summary ${units[0].type} wins: rounds:${r.rounds}, hitPoints:${r.hitPoints}`,
+  );
 
-  while (result == null) {
-    setupMap(input);
-    setupUnits(++addedPower);
-    result = doBattle(superElves);
-  }
+  return r.rounds * r.hitPoints;
 
-  return result.rounds * result.hitPoints;
+  return combatOutcome;
 }
 
 function getShortestPathToEnemy(r, c, target, map) {
   const seen = new Set();
   const q = new Queue([{ r: r, c: c, path: [] }]);
-  const found = [];
 
-  let shortestPathLenth = 999;
   while (!q.isEmpty()) {
     const pt = q.dequeue();
-    if (pt.path.length > shortestPathLenth) {
-      found.sort((a, b) => byReadingOrder(a, b));
-      return found[0].path[0];
-    }
     for (const { dr, dc } of dirValues) {
       const nr = pt.r + dr;
       const nc = pt.c + dc;
       if (map[nr][nc] == target) {
-        shortestPathLenth = Math.min(shortestPathLenth, pt.path.length);
-        found.push({ row: nr, col: nc, path: pt.path });
-        continue;
+        return pt.path[0];
       }
       if (seen.has(`${nr}-${nc}`)) {
         continue;
@@ -168,10 +169,6 @@ function getShortestPathToEnemy(r, c, target, map) {
         q.enqueue(setArgs(nr, nc, pt.path));
       }
     }
-  }
-  if (found.length > 0) {
-    found.sort((a, b) => byReadingOrder(a, b));
-    return found[0].path[0];
   }
   return null;
 }
@@ -223,18 +220,14 @@ function drawBattleMap() {
   return arr;
 }
 
-function printMap(withValues = false) {
+function printMap() {
   const arr = [];
   console.log();
   for (let i = 0; i < height; i++) {
     arr[i] = map[i].slice();
   }
   for (const u of units.filter((x) => !x.dead)) {
-    if (withValues) {
-      arr[u.row][u.col] = `${u.type} (${u.health})`;
-    } else {
-      arr[u.row][u.col] = u.type;
-    }
+    arr[u.row][u.col] = `${u.type} (${u.health})`;
   }
   arr.forEach((row) => console.log(...row));
 }
@@ -251,19 +244,12 @@ function setupMap(input) {
   width = map[0].length;
 }
 
-function setupUnits(addedPower) {
-  units = [];
+function setupUnits() {
   let idx = 0;
   for (let r = 0; r < height; r++) {
     for (let c = 0; c < width; c++) {
-      if (map[r][c] == "G") {
+      if (map[r][c] == "G" || map[r][c] == "E") {
         units.push(new Unit(idx++, r, c, map[r][c]));
-        map[r][c] = ".";
-      }
-      if (map[r][c] == "E") {
-        const elf = new Unit(idx++, r, c, map[r][c]);
-        elf.power += addedPower;
-        units.push(elf);
         map[r][c] = ".";
       }
     }
