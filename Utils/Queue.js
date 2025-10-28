@@ -1,6 +1,6 @@
 class Queue {
-  constructor() {
-    this.items = [];
+  constructor(arr) {
+    this.items = arr === undefined ? [] : arr;
   }
 
   enqueue(element) {
