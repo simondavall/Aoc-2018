@@ -25,14 +25,18 @@ const directions = {
 
 let map = [];
 let units = [];
+let deadUnits = new Set();
 let height = 0;
 let width = 0;
 
 function moveUnit(unit, map) {
-  const next = getShortestPathToEnemy(unit.row, unit.col, getEnemyType(unit), map);
-  // console.log(`Next: ${next}`);
+  const next = getShortestPathToEnemy(
+    unit.row,
+    unit.col,
+    getEnemyType(unit),
+    map,
+  );
   if (next !== undefined && next !== null) {
-    // console.log(`Returned path item: ${next}`);
     map[unit.row][unit.col] = ".";
     unit.row = next[0];
     unit.col = next[1];
@@ -41,13 +45,7 @@ function moveUnit(unit, map) {
 }
 
 function combat(unit, map) {
-  if (unit.health <= 0) {
-    console.log(`Unit not fighing: ${unit.id}] health:${unit.health}`);
-    return;
-  }
-
   let weakestEnemy = null;
-  const enemy = getEnemyType(unit);
   let minHealth = 999;
 
   for (const { dr, dc } of dirValues) {
@@ -56,7 +54,7 @@ function combat(unit, map) {
     const adj = getUnitAtLocation(nr, nc);
     if (
       adj != null &&
-      adj.type == enemy &&
+      adj.type != unit.type &&
       adj.health < minHealth &&
       adj.health > 0
     ) {
@@ -67,9 +65,43 @@ function combat(unit, map) {
   //attack them
   if (weakestEnemy != null) {
     weakestEnemy.health -= unit.power;
-    if (weakestEnemy.health <= 0){
+    if (weakestEnemy.health <= 0) {
+      deadUnits.add(weakestEnemy.id);
       weakestEnemy.dead = true;
+      map[weakestEnemy.row][weakestEnemy.col] = ".";
+      units = units.filter((x) => !x.dead);
     }
+  }
+}
+
+function doBattle() {
+  let rounds = 0;
+  deadUnits = new Set();
+
+  while (true) {
+    units.sort((a, b) => byReadingOrder(a, b));
+    let battleMap = drawBattleMap();
+
+    const combatants = units.map((x) => x.id);
+    for (const id of combatants) {
+      const unit = getUnit(id);
+      if (unit == null) {
+        continue;
+      }
+
+      if (!hasEnemies(unit)) {
+        // battle over
+        const hitPoints = units
+          .filter((x) => !x.dead)
+          .reduce((a, b) => a + b.health, 0);
+        console.log(`Summary: rounds:${rounds}, hitPoints:${hitPoints}`);
+        return rounds * hitPoints;
+      }
+
+      moveUnit(unit, battleMap);
+      combat(unit, battleMap);
+    }
+    rounds++;
   }
 }
 
@@ -79,51 +111,8 @@ function partOne(input) {
   setupMap(input);
   setupUnits();
 
-  //printMap();
-
-  let round = 0;
-  let roundComplete = true;
-
-  while (hasFighters("E") && hasFighters("G")) {
-    units.sort((a, b) => byReadingOrder(a, b));
-    let battleMap = drawBattleMap();
-
-    const combatants = [];
-    units.forEach((x) => combatants.push(x.id));
-
-    for (const id of combatants) {
-      const unit = getUnit(id);
-
-      const enemy = getEnemyType(unit);
-      if (!hasFighters(enemy)) {
-        console.log(`No enemies to fight. Breaking early`);
-        //round--;
-        roundComplete = false;
-        break;
-      }
-      moveUnit(unit, battleMap);
-      combat(unit, battleMap);
-    }
-
-    units = units.filter((x) => x.health > 0);
-
-    if (roundComplete){
-      round++;
-    }
-
-    // round++;
-    // if (hasFighters("E") && hasFighters("G")) {
-    //   units.sort((a, b) => byReadingOrder(a, b));
-    //   battleMap = drawBattleMap();
-    // }
-  }
-
-  //printMap();
-
-  const tally = units.reduce((a, b) => a + b.health, 0);
-
-  console.log(`Hit points: ${tally}, rounds:${round}`);
-  return tally * round;
+  const combatOutcome = doBattle();
+  return combatOutcome;
 }
 
 function partTwo(input) {
@@ -156,8 +145,8 @@ function getShortestPathToEnemy(r, c, target, map) {
   return null;
 }
 
-function hasFighters(type) {
-  return units.filter((x) => x.type == type && !x.dead).length > 0;
+function hasEnemies(unit) {
+  return units.filter((x) => x.type != unit.type && !x.dead).length > 0;
 }
 
 function getUnitAtLocation(r, c) {
@@ -197,7 +186,7 @@ function drawBattleMap() {
   for (let i = 0; i < height; i++) {
     arr[i] = map[i].slice();
   }
-  for (const u of units) {
+  for (const u of units.filter((x) => !x.dead)) {
     arr[u.row][u.col] = u.type;
   }
   return arr;
@@ -209,11 +198,14 @@ function printMap() {
   for (let i = 0; i < height; i++) {
     arr[i] = map[i].slice();
   }
-  for (const u of units) {
+  for (const u of units.filter((x) => !x.dead)) {
     arr[u.row][u.col] = `${u.type} (${u.health})`;
   }
-  // const arr = drawBattleMap();
   arr.forEach((row) => console.log(...row));
+}
+
+function getEnemyType(unit) {
+  return unit.type == "G" ? "E" : "G";
 }
 
 function setupMap(input) {
@@ -222,10 +214,6 @@ function setupMap(input) {
   }
   height = map.length;
   width = map[0].length;
-}
-
-function getEnemyType(unit) {
-  return unit.type == "G" ? "E" : "G";
 }
 
 function setupUnits() {
