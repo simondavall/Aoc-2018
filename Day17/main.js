@@ -2,10 +2,8 @@ const fs = require("fs");
 const os = require("os");
 const assert = require("assert");
 const { performance } = require("perf_hooks");
-const { Stack } = require("../Utils/Stack.js");
 
 let grid = [];
-let possibles = [];
 let minX = 999;
 let maxX = 0;
 let minY = 999;
@@ -13,70 +11,8 @@ let maxY = 0;
 let height = 0;
 let width = 0;
 
-function isBlockedLeft(x, y) {
-  if (isOutOfBounds(x, y)) {
-    return false;
-  }
-  grid[y][x] = "|";
-  if (!isBlocked(x, y + 1)) {
-    if (!getFlow(x, y + 1)) {
-      return false;
-    }
-  }
-  if (isBlocked(x - 1, y)) {
-    return true;
-  } else {
-    return isBlockedLeft(x - 1, y);
-  }
-}
-
-function isBlockedRight(x, y) {
-  if (isOutOfBounds(x, y)) {
-    return false;
-  }
-
-  grid[y][x] = "|";
-  if (!isBlocked(x, y + 1)) {
-    if (!getFlow(x, y + 1)) {
-      return false;
-    }
-  }
-  if (isBlocked(x + 1, y)) {
-    return true;
-  } else {
-    return isBlockedRight(x + 1, y);
-  }
-}
-
-function getFlow(x, y) {
-  if (isOutOfBounds(x, y)) {
-    return false;
-  }
-  grid[y][x] = "|";
-  if (!isBlocked(x, y + 1)) {
-    if (!getFlow(x, y + 1, [])) {
-      return false;
-    }
-  }
-  const left = isBlockedLeft(x, y);
-  const right = isBlockedRight(x, y);
-
-  if (left && right) {
-    let i = x;
-    while (!isBlocked(i, y)) {
-      i--;
-    }
-    while (!isBlocked(++i, y)) {
-      grid[y][i] = "~";
-    }
-    return true;
-  }
-  return false;
-}
-
 function partOne(input) {
   grid = buildGrid(input);
-  possibles = [];
 
   let curX = 500 - minX;
   let curY = 0;
@@ -110,6 +46,75 @@ function partTwo(input) {
 
   return tally;
 }
+
+function getFlow(x, y) {
+  if (isOutOfBounds(x, y)) {
+    return false;
+  }
+  grid[y][x] = "|";
+  if (!isBlocked(x, y + 1)) {
+    if (!getFlow(x, y + 1, [])) {
+      return false;
+    }
+  }
+  const left = isBlockedLeft(x, y);
+  const right = isBlockedRight(x, y);
+
+  if (left && right) {
+    let i = x;
+    while (!isBlocked(i, y)) {
+      i--;
+    }
+    while (!isBlocked(++i, y)) {
+      grid[y][i] = "~";
+    }
+    return true;
+  }
+  return false;
+}
+
+function isBlockedLeft(x, y) {
+  if (isOutOfBounds(x, y)) {
+    return false;
+  }
+  grid[y][x] = "|";
+  if (!isBlocked(x, y + 1)) {
+    if (!getFlow(x, y + 1)) {
+      return false;
+    }
+  }
+  if (isBlocked(x - 1, y)) {
+    return true;
+  } else {
+    return isBlockedLeft(x - 1, y);
+  }
+}
+
+function isBlockedRight(x, y) {
+  if (isOutOfBounds(x, y)) {
+    return false;
+  }
+  grid[y][x] = "|";
+  if (!isBlocked(x, y + 1)) {
+    if (!getFlow(x, y + 1)) {
+      return false;
+    }
+  }
+  if (isBlocked(x + 1, y)) {
+    return true;
+  } else {
+    return isBlockedRight(x + 1, y);
+  }
+}
+
+function isOutOfBounds(x, y) {
+  return x <= 0 || x >= width + 1 || y < 0 || y >= height;
+}
+
+function isBlocked(x, y) {
+  return grid[y][x] == "#" || grid[y][x] == "~";
+}
+
 function buildGrid(input) {
   minX = 999;
   minY = 999;
@@ -128,8 +133,6 @@ function buildGrid(input) {
     minY = Math.min(minY, pt.y);
     maxY = Math.max(maxY, pt.y);
   });
-  //minY = 2;
-  //console.log(`minX: ${minX}, maxX:${maxX}, minY:${minY}, maxY:${maxY}`);
   height = maxY - minY + 1;
   width = maxX - minX + 1;
   const grid = new Array(height);
@@ -145,20 +148,6 @@ function buildGrid(input) {
   return grid;
 }
 
-function isOutOfBounds(x, y) {
-  return x <= 0 || x >= width + 1 || y < 0 || y >= height;
-}
-
-function isBlocked(x, y) {
-  return grid[y][x] == "#" || grid[y][x] == "~";
-}
-
-function movementError(curX, curY, curDir) {
-  assert.fail(
-    `Invalid grid entry. '${grid[curY][curX]}' not valid at this point. curX:${curX}, curY:${curY}, curDir:${curDir}`,
-  );
-}
-
 function deconstructData(data) {
   arr = [];
   const a = +data[2];
@@ -172,10 +161,6 @@ function deconstructData(data) {
     }
   }
   return arr;
-}
-
-function range(size, startAt = 0) {
-  return [...Array(size).keys()].map((i) => i + startAt);
 }
 
 function solveFile(filePath) {
