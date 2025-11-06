@@ -1,6 +1,6 @@
 class Stack {
   constructor(arr) {
-    this.items = arr === undefined ? [] : arr;
+    this.items = arr === undefined ? [] : arr.reverse();
   }
 
   // Push operation
