@@ -2,7 +2,7 @@ const fs = require("fs");
 const os = require("os");
 const assert = require("assert");
 const { performance } = require("perf_hooks");
-const { Device, Instruction } = require("./opcodes.js");
+const { Device, Instruction } = require("../Device/opcodes.js");
 
 function partOne(input) {
   const register = [0, 0, 0, 0, 0, 0];
