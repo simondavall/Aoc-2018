@@ -12,10 +12,6 @@ class Instruction {
 }
 
 class Device {
-  // constructor(ip, size) {
-  //   this.register = (new Array(size)).fill(0);
-  //   this.ip = ip;
-  // }
   constructor(ip, arr){
     this.register = arr;
     this.ip = ip;
