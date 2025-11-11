@@ -39,15 +39,11 @@ function partOne(targetX, targetY, depth) {
 
     for (const { x, y } of Object.values(regions)) {
       let geoIndex = 0;
-      if (x == 0 && y == 0) {
-        geoIndex = 0;
-      } else if (x == targetX && y == targetY) {
-        geoIndex = 0;
-      } else if (y == 0) {
-        geoIndex = x * 16807;
-      } else if (x == 0) {
-        geoIndex = y * 48271;
-      } else {
+      if (x == 0 && y == 0) { geoIndex = 0; }
+      else if (x == targetX && y == targetY) { geoIndex = 0; } 
+      else if (y == 0) { geoIndex = x * 16807; } 
+      else if (x == 0) { geoIndex = y * 48271; }
+      else {
         const key1 = getKey(x - 1, y);
         const key2 = getKey(x, y - 1);
         geoIndex = erosionLevels[key1] * erosionLevels[key2];
@@ -89,15 +85,11 @@ function partTwo(targetX, targetY, depth) {
 
     for (const { x, y } of Object.values(regions)) {
       let geoIndex = 0;
-      if (x == 0 && y == 0) {
-        geoIndex = 0;
-      } else if (x == targetX && y == targetY) {
-        geoIndex = 0;
-      } else if (y == 0) {
-        geoIndex = x * 16807;
-      } else if (x == 0) {
-        geoIndex = y * 48271;
-      } else {
+      if (x == 0 && y == 0) { geoIndex = 0; }
+      else if (x == targetX && y == targetY) { geoIndex = 0; } 
+      else if (y == 0) { geoIndex = x * 16807; } 
+      else if (x == 0) { geoIndex = y * 48271; }
+      else {
         const key1 = getKey(x - 1, y);
         const key2 = getKey(x, y - 1);
         geoIndex = erosionLevels[key1] * erosionLevels[key2];
@@ -115,30 +107,14 @@ function partTwo(targetX, targetY, depth) {
       const point = { x: x, y: y };
 
       if (types[key] == 0) {
-        options[getKey(x, y, tool.climbing)] = new searchNode(
-          x,
-          y,
-          tool.climbing,
-        );
+        options[getKey(x, y, tool.climbing)] = new searchNode(x, y, tool.climbing);
         options[getKey(x, y, tool.torch)] = new searchNode(x, y, tool.torch);
       } else if (types[key] == 1) {
-        options[getKey(x, y, tool.climbing)] = new searchNode(
-          x,
-          y,
-          tool.climbing,
-        );
-        options[getKey(x, y, tool.neither)] = new searchNode(
-          x,
-          y,
-          tool.neither,
-        );
+        options[getKey(x, y, tool.climbing)] = new searchNode(x, y, tool.climbing);
+        options[getKey(x, y, tool.neither)] = new searchNode(x, y, tool.neither);
       } else if (types[key] == 2) {
         options[getKey(x, y, tool.torch)] = new searchNode(x, y, tool.torch);
-        options[getKey(x, y, tool.neither)] = new searchNode(
-          x,
-          y,
-          tool.neither,
-        );
+        options[getKey(x, y, tool.neither)] = new searchNode(x, y, tool.neither);
       }
 
       const optionValues = Object.values(options);
@@ -147,10 +123,7 @@ function partTwo(targetX, targetY, depth) {
         lookup[optKey] = opt;
 
         searchNodes[optKey] = opt;
-        assert(
-          optionValues.length == 2,
-          `Options length should be 2. Length:${optionValues.length}`,
-        );
+        assert(optionValues.length == 2, `Options length should be 2. Length:${optionValues.length}`);
         const otherOpt = optionValues.filter((o) => o.tool != opt.tool)[0];
         const otherOptKey = getKey(otherOpt.x, otherOpt.y, otherOpt.tool);
         opt.connectionsWithCost[otherOptKey] = { option: otherOpt, cost: 7 };
@@ -222,10 +195,7 @@ function getMinDistance(searchNodes, originPoint, targetPoint) {
           if (distances[edge.getKey()] === undefined){
             distances[edge.getKey()] = 0;
           }
-          distances[opt.option.getKey()] = Math.min(
-            distances[edge.getKey()] + 1,
-            distance,
-          );
+          distances[opt.option.getKey()] = Math.min(distances[edge.getKey()] + 1, distance);
           new_edges[opt.option.getKey()] = opt.option;
         } else {
           discoveryTimers.push(
@@ -238,10 +208,6 @@ function getMinDistance(searchNodes, originPoint, targetPoint) {
   }
 
   return distances[target.getKey()];
-}
-
-function isInBounds(x, y) {
-  return !(x < 0 || y < 0);
 }
 
 function getKey(x, y, tool) {
@@ -260,17 +226,13 @@ function solveFile(filePath) {
   let start = performance.now();
   const result1 = partOne(targetX, targetY, depth);
   const mid = performance.now();
-  console.log(
-    `Result partOne: ${result1} in ${(mid - start).toPrecision(6)}ms`,
-  );
+  console.log(`Result partOne: ${result1} in ${(mid - start).toPrecision(6)}ms`);
 
   start = performance.now();
   const result2 = partTwo(targetX, targetY, depth);
   const end = performance.now();
 
-  console.log(
-    `Result partTwo: ${result2} in ${(end - start).toPrecision(6)}ms`,
-  );
+  console.log(`Result partTwo: ${result2} in ${(end - start).toPrecision(6)}ms`);
 }
 
 for (let filePath of process.argv.slice(2)) {
