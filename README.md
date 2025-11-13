@@ -1,5 +1,5 @@
-# Aoc-2018
-Advent Of Code 2018 solutions in javascript
+# Advent Of Code 2018 - All days complete and fully working examples
+Advent Of Code 2018 solutions written using javascript
 
 ### Quick Start ###
 1. Install node.js (I used version 22.18.0)
@@ -8,3 +8,8 @@ Advent Of Code 2018 solutions in javascript
 
 This will execute both puzzles for the day and display results in the console.
 
+
+![Rudolph's festive retreat][./Assets/rudolph.png]
+
+
+<img src=".Assets/rudolph.png" alt="Rudolph' retreat" width="400" />
