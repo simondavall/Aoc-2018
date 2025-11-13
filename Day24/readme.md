@@ -10,4 +10,4 @@ Result partTwo: 51 in 104.637ms\
 File: input.txt\
 Result partOne: 9878 in 8.24801ms\
 Final boost: 51\
-Result partTwo: 10954 in 385.193ms\
+Result partTwo: 10954 in 385.193ms

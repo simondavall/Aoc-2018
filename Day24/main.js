@@ -4,7 +4,6 @@ const assert = require("assert");
 const { performance } = require("perf_hooks");
 
 let nextId = 0;
-const originalValues = new Object();
 
 class Army {
   constructor(id, units, hp, dam, damtype, init, type, weak, immune) {
@@ -172,7 +171,6 @@ function getArmies(data, type, boost) {
     const { weakness, immunity } = getAttributes(m[3]);
     const army = new Army(nextId++, +m[1], +m[2], +m[4] + boost, m[5], +m[6], type, weakness, immunity);
     armies.push(army);
-    originalValues[army.id] = army.units;
   }
   return armies;
 }
@@ -208,17 +206,12 @@ function solveFile(filePath) {
   let start = performance.now();
   const result1 = partOne(immuneData, infectionData);
   const mid = performance.now();
-  console.log(
-    `Result partOne: ${result1} in ${(mid - start).toPrecision(6)}ms\\`,
-  );
+  console.log(`Result partOne: ${result1} in ${(mid - start).toPrecision(6)}ms\\`);
 
   start = performance.now();
   const result2 = partTwo(immuneData, infectionData);
   const end = performance.now();
-
-  console.log(
-    `Result partTwo: ${result2} in ${(end - start).toPrecision(6)}ms\\`,
-  );
+  console.log(`Result partTwo: ${result2} in ${(end - start).toPrecision(6)}ms\\`);
 }
 
 for (let filePath of process.argv.slice(2)) {
