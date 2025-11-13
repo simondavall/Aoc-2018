@@ -12,4 +12,4 @@ This will execute both puzzles for the day and display results in the console.
 ![Rudolph's festive retreat][./Assets/rudolph.png]
 
 
-<img src=".Assets/rudolph.png" alt="Rudolph' retreat" width="400" />
+<img src="./Assets/rudolph.png" alt="Rudolph' retreat" width="400" />
